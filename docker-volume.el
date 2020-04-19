@@ -56,16 +56,24 @@ and FLIP is a boolean to specify the sort order."
     (json-readtable-error
      (error "Could not read following string as json:\n%s" line))))
 
-(defun docker-volume-entries ()
+(defun docker-volume-entries (&optional args)
   "Return the docker volumes data for `tabulated-list-entries'."
   (let* ((fmt "[{{json .Driver}},{{json .Name}}]")
-         (data (docker-run-docker "volume ls" (docker-volume-ls-arguments) (format "--format=\"%s\"" fmt)))
+         (data (docker-run-docker "volume ls" args (format "--format=\"%s\"" fmt)))
          (lines (s-split "\n" data t)))
     (-map #'docker-volume-parse lines)))
 
+(defun docker-volume-stats ()
+  "Return the volumes stats string."
+  (let* ((dangling (length (docker-volume-entries "--filter dangling=true")))
+         (all (length (docker-volume-entries))))
+    (format "Volumes (%s total, %s dangling)"
+            all
+            (propertize (number-to-string dangling) 'face 'docker-face-dangling))))
+
 (defun docker-volume-refresh ()
   "Refresh the volumes list."
-  (setq tabulated-list-entries (docker-volume-entries)))
+  (setq tabulated-list-entries (docker-volume-entries (docker-volume-ls-arguments))))
 
 (defun docker-volume-read-name ()
   "Read a volume name."

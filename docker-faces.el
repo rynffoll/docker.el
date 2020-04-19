@@ -48,6 +48,11 @@
   "Face used when the status is not up/down."
   :group 'docker-faces)
 
+(defface docker-face-dangling
+  '((t :foreground "Gray"))
+  "Face for dangling items."
+  :group 'docker-faces)
+
 (provide 'docker-faces)
 
 ;;; docker-faces.el ends here

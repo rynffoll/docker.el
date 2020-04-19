@@ -53,10 +53,10 @@
    ("-l" "Log level" "--log-level " docker-read-log-level)
    ("-H" "Host" "--host " read-string)]
   ["Docker"
-   ("c" "Containers" docker-containers)
-   ("i" "Images"     docker-images)
-   ("n" "Networks"   docker-networks)
-   ("v" "Volumes"    docker-volumes)]
+   ("c" docker-container-stats docker-containers)
+   ("i" docker-image-stats     docker-images)
+   ("n" docker-network-stats   docker-networks)
+   ("v" docker-volume-stats    docker-volumes)]
   ["Other"
    ("C" "Compose"    docker-compose)
    ("M" "Machines"   docker-machines)])

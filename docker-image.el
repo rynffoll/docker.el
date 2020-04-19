@@ -61,16 +61,24 @@ and FLIP is a boolean to specify the sort order."
     (json-readtable-error
      (error "Could not read following string as json:\n%s" line))))
 
-(defun docker-image-entries ()
+(defun docker-image-entries (&optional args)
   "Return the docker images data for `tabulated-list-entries'."
   (let* ((fmt "[{{json .Repository}},{{json .Tag}},{{json .ID}},{{json .CreatedAt}},{{json .Size}}]")
-         (data (docker-run-docker "image ls" (docker-image-ls-arguments) (format "--format=\"%s\"" fmt)))
+         (data (docker-run-docker "image ls" args (format "--format=\"%s\"" fmt)))
          (lines (s-split "\n" data t)))
     (-map #'docker-image-parse lines)))
 
+(defun docker-image-stats ()
+  "Return the images stats string."
+  (let* ((dangling (length (docker-image-entries "--filter dangling=true")))
+         (all (length (docker-image-entries))))
+    (format "Images (%s total, %s dangling)"
+            all
+            (propertize (number-to-string dangling) 'face 'docker-face-dangling))))
+
 (defun docker-image-refresh ()
   "Refresh the images list."
-  (setq tabulated-list-entries (docker-image-entries)))
+  (setq tabulated-list-entries (docker-image-entries (docker-image-ls-arguments))))
 
 (defun docker-image-read-name ()
   "Read an image name."

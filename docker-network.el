@@ -57,16 +57,21 @@ and FLIP is a boolean to specify the sort order."
     (json-readtable-error
      (error "Could not read following string as json:\n%s" line))))
 
-(defun docker-network-entries ()
+(defun docker-network-entries (&optional args)
   "Return the docker networks data for `tabulated-list-entries'."
   (let* ((fmt "[{{json .ID}},{{json .Name}},{{json .Driver}},{{json .Scope}}]")
-         (data (docker-run-docker "network ls" (docker-network-ls-arguments) (format "--format=\"%s\"" fmt)))
+         (data (docker-run-docker "network ls" args (format "--format=\"%s\"" fmt)))
          (lines (s-split "\n" data t)))
     (-map #'docker-network-parse lines)))
 
+(defun docker-network-stats ()
+  "Return the networks stats string."
+  (let* ((all (length (docker-network-entries))))
+    (format "Networks (%s total)" all)))
+
 (defun docker-network-refresh ()
   "Refresh the networks list."
-  (setq tabulated-list-entries (docker-network-entries)))
+  (setq tabulated-list-entries (docker-network-entries (docker-network-ls-arguments))))
 
 (defun docker-network-read-name ()
   "Read a network name."
