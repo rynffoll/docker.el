@@ -56,20 +56,28 @@ and FLIP is a boolean to specify the sort order."
     (json-readtable-error
      (error "Could not read following string as json:\n%s" line))))
 
-(defun docker-volume-entries (&optional args)
+(defun docker-volume-raw-entries (&optional args)
   "Return the docker volumes data for `tabulated-list-entries'."
   (let* ((fmt "[{{json .Driver}},{{json .Name}}]")
          (data (docker-run-docker "volume ls" args (format "--format=\"%s\"" fmt)))
          (lines (s-split "\n" data t)))
     (-map #'docker-volume-parse lines)))
 
+(defun docker-volume-entries (&optional args)
+  "Return the docker volumes data for `tabulated-list-entries'."
+  (let ((all (docker-volume-raw-entries args))
+        (dangling (--map (car it) (docker-volume-raw-entries "--filter dangling=true"))))
+    (--map-when (-contains? dangling (car it))
+                (list (propertize (car it) 'docker-volume-dangling? t) (apply #'vector (--map (propertize it 'font-lock-face 'docker-face-dangling) (cadr it))))
+                all)))
+
 (defun docker-volume-description-with-stats ()
   "Return the volumes stats string."
-  (let* ((dangling (length (docker-volume-entries "--filter dangling=true")))
-         (all (length (docker-volume-entries))))
+  (let* ((entries (docker-volume-entries))
+         (dangling (--filter (get-text-property 0 'docker-volume-dangling? (car it)) entries)))
     (format "Volumes (%s total, %s dangling)"
-            all
-            (propertize (number-to-string dangling) 'face 'docker-face-dangling))))
+            (length entries)
+            (propertize (number-to-string (length dangling)) 'face 'docker-face-dangling))))
 
 (defun docker-volume-refresh ()
   "Refresh the volumes list."
