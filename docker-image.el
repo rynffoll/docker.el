@@ -68,7 +68,7 @@ and FLIP is a boolean to specify the sort order."
          (lines (s-split "\n" data t)))
     (-map #'docker-image-parse lines)))
 
-(defun docker-image-stats ()
+(defun docker-image-description-with-stats ()
   "Return the images stats string."
   (let* ((dangling (length (docker-image-entries "--filter dangling=true")))
          (all (length (docker-image-entries))))

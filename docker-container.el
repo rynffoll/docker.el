@@ -95,7 +95,7 @@ and FLIP is a boolean to specify the sort order."
          (lines (s-split "\n" data t)))
     (-map #'docker-container-parse lines)))
 
-(defun docker-container-stats ()
+(defun docker-container-description-with-stats ()
   "Return the containers stats string."
   (let* ((up (length (docker-container-entries "--filter status=running")))
          (down (length (docker-container-entries "--filter status=exited")))

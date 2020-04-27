@@ -64,7 +64,7 @@ and FLIP is a boolean to specify the sort order."
          (lines (s-split "\n" data t)))
     (-map #'docker-network-parse lines)))
 
-(defun docker-network-stats ()
+(defun docker-network-description-with-stats ()
   "Return the networks stats string."
   (let* ((all (length (docker-network-entries))))
     (format "Networks (%s total)" all)))
